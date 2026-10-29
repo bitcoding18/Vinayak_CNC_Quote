@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinayak Engineering Works - Quotation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{--bg:#eef1f4;--card:#fff;--ink:#16202b;--muted:#5d6b7a;--line:#d5dbe2;--accent:#0b6e6e}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Devanagari",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .wrap{max-width:920px;margin:0 auto;padding:20px 16px 40px;display:grid;gap:16px;grid-template-columns:1fr}
+  @media(min-width:800px){.wrap{grid-template-columns:1.2fr 1fr;align-items:start}header{grid-column:1/-1}}
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  h1{font-size:1.5rem;margin:0}
+  header p{margin:2px 0 0;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  fieldset{border:0;margin:0 0 18px;padding:0}
+  legend{font-weight:700;margin-bottom:8px;padding:0}
+  label{display:block;font-size:.9rem;color:var(--muted);margin:8px 0 3px}
+  input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:1rem;background:#fff;color:var(--ink)}
+  textarea{resize:vertical;min-height:80px}
+  input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  td.notes{text-align:left;white-space:pre-wrap;padding-top:10px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .dim{display:grid;grid-template-columns:1fr 110px;gap:8px}
+  .check{display:flex;align-items:center;gap:8px;margin:0;color:var(--ink);font-size:1rem}
+  .check input{width:auto}
+  #matBox{display:none}
+  button{font:inherit;cursor:pointer;border-radius:6px;padding:10px 14px;border:1px solid var(--accent)}
+  #lang{background:#fff;color:var(--accent);white-space:nowrap}
+  #pdf{width:100%;margin-top:14px;background:var(--accent);color:#fff;font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  td{padding:7px 0;border-bottom:1px solid var(--line)}
+  td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  .total td{border:0;font-size:1.25rem;font-weight:700;color:var(--accent);padding-top:12px}
+  .qhead{display:none;margin-bottom:12px}
+  .qhead h2{margin:0;font-size:1.4rem}
+  .note{font-size:.8rem;color:var(--muted);margin-top:10px}
+  @media print{
+    body{background:#fff}
+    .wrap{display:block;padding:0}
+    header,#f,#pdf,.note{display:none!important}
+    .card{border:0;padding:0}
+    .qhead{display:block}
+    td{font-size:1rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 data-i18n="biz"></h1>
+      <p data-i18n="sub"></p>
+    </div>
+    <button id="lang" type="button"></button>
+  </header>
+
+  <form class="card" id="f" onsubmit="return false">
+    <fieldset>
+      <legend data-i18n="job"></legend>
+      <label for="cust" data-i18n="cust"></label>
+      <input id="cust" type="text">
+      <label for="workName" data-i18n="workName"></label>
+      <input id="workName" type="text">
+      <label for="type" data-i18n="type"></label>
+      <select id="type"></select>
+      <label for="base" data-i18n="base"></label>
+      <input id="base" type="number" min="0" step="1">
+      <label for="complexity" data-i18n="complexity"></label>
+      <select id="complexity"></select>
+      <label for="thk" data-i18n="thk"></label>
+      <select id="thk"></select>
+      <label for="w" data-i18n="w"></label>
+      <div class="dim"><input id="w" type="number" min="0" step="any" value="4"><select id="wU" aria-label="unit"></select></div>
+      <label for="h" data-i18n="h"></label>
+      <div class="dim"><input id="h" type="number" min="0" step="any" value="2"><select id="hU" aria-label="unit"></select></div>
+      <label for="qty" data-i18n="qty"></label>
+      <input id="qty" type="number" min="1" step="1" value="1">
+    </fieldset>
+
+    <fieldset>
+      <legend data-i18n="material"></legend>
+      <label class="check"><input type="checkbox" id="matInc"> <span data-i18n="matInc"></span></label>
+      <div id="matBox">
+        <label for="mat" data-i18n="matSel"></label>
+        <select id="mat"></select>
+        <label for="mw" data-i18n="mw"></label>
+        <div class="dim"><input id="mw" type="number" min="0" step="any" value="8"><select id="mwU" aria-label="unit"></select></div>
+        <label for="mh" data-i18n="mh"></label>
+        <div class="dim"><input id="mh" type="number" min="0" step="any" value="4"><select id="mhU" aria-label="unit"></select></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-i18n="other"></legend>
+      <div class="row">
+        <div><label for="labour" data-i18n="labour"></label><input id="labour" type="number" min="0" value="0"></div>
+        <div><label for="design" data-i18n="design"></label><input id="design" type="number" min="0" value="0"></div>
+      </div>
+      <label for="transport" data-i18n="transport"></label>
+      <input id="transport" type="number" min="0" value="0">
+    </fieldset>
+
+    <fieldset>
+      <legend data-i18n="notesTitle"></legend>
+      <label for="notes" data-i18n="notes"></label>
+      <textarea id="notes"></textarea>
+    </fieldset>
+  </form>
+
+  <aside class="card" aria-live="polite">
+    <div class="qhead">
+      <h2 data-i18n="biz"></h2>
+      <div><strong data-i18n="quotation"></strong></div>
+    </div>
+    <table id="out"></table>
+    <button id="pdf" type="button" data-i18n="pdf"></button>
+    <p class="note" data-i18n="pdfNote"></p>
+  </aside>
+</div>
+
+<script>
+/* ===== CONFIG: edit prices and multipliers here ===== */
+const CONFIG = {
+  workTypes: [
+    { en: "2D work", hi: "2D काम", base: 120 },
+    { en: "3D work", hi: "3D काम", base: 1500 }
+  ],
+  complexity: [
+    { en: "Simple",   hi: "साधारण", m: 1.0 },
+    { en: "Medium",   hi: "मध्यम",  m: 1.3 },
+    { en: "Detailed", hi: "विस्तृत", m: 1.7 }
+  ],
+  thickness: [
+    { en: "Up to 6 mm",      hi: "6 मिमी तक",       m: 1.0 },
+    { en: "12 mm",           hi: "12 मिमी",         m: 1.15 },
+    { en: "18 mm",           hi: "18 मिमी",         m: 1.3 },
+    { en: "25 mm and above", hi: "25 मिमी और ऊपर", m: 1.5 }
+  ],
+  materials: [],                    /* built below from the MDF price list + other materials */
+  minCharge: 0                       /* minimum charge for cutting/carving part (₹) */
+};
+
+/* ===== MDF PRICE LIST (Motherwood, dated 1/10/2026) =====
+   Prices are per sq ft in ₹, GST 18% included, ex-godown (freight extra).
+   Format: [thickness in mm, price per sq ft]. Update when a new list arrives. */
+const MDF_LIST = [
+  { en: "Interior MDF", hi: "इंटीरियर MDF", rows: [
+    [1.85,7.5],[2.1,8.4],[3.2,11.41],[4,13.88],[4.6,15.58],[5.5,18.94],[7,22.05],[7.3,23.32],[7.5,23.95],
+    [9.75,32.35],[11,35.64],[14.5,45.99],[16,47.92],[16.5,50.91],[17,52.4],[18,57.89],[25,83.66],[30,104.56],[35,121.99] ] },
+  { en: "Exterior MDF", hi: "एक्सटीरियर MDF", rows: [
+    [3,13.43],[5.5,23.76],[7.3,29.24],[11,44.68],[16,61.26],[17,65.7],[18,72.59],[25,107.02],[30,151.7],[35,171.48] ] },
+  { en: "Super HD MDF", hi: "सुपर HD MDF", rows: [
+    [2.7,14.99],[3,16.66],[5.5,29.52],[7.5,37.28],[11,54.6],[16,74.75],[16.75,77.88],[18,87.45],[22,108.82],[25,123.65],[32,183.79] ] },
+  { en: "Terbo+ MDF", hi: "टर्बो+ MDF", rows: [
+    [3,31.92],[5.5,54.14],[8,68.7],[12,99.24],[16,130.22],[16.75,135.88],[18,145.03] ] }
+];
+const OTHER_MATERIALS = [            /* sample prices per sq ft (₹) - edit */
+  { en: "Plywood",    hi: "प्लाईवुड",     p: 90 },
+  { en: "Acrylic",    hi: "एक्रिलिक",     p: 250 },
+  { en: "Solid wood", hi: "सॉलिड लकड़ी",  p: 400 }
+];
+MDF_LIST.forEach(g => g.rows.forEach(([mm, p]) => CONFIG.materials.push({
+  g, p,
+  en: `${g.en} ${mm} mm`, hi: `${g.hi} ${mm} मिमी`,
+  s: { en: `${mm} mm`, hi: `${mm} मिमी` }
+})));
+const OTHER_GROUP = { en: "Other materials", hi: "अन्य मटेरियल" };
+OTHER_MATERIALS.forEach(m => CONFIG.materials.push({ g: OTHER_GROUP, p: m.p, en: m.en, hi: m.hi, s: { en: m.en, hi: m.hi } }));
+
+const T = {
+  en: {
+    biz: "Vinayak Engineering Works", sub: "Enter the job details to get an instant price.",
+    job: "Job", cust: "Customer name", workName: "Name of work", notesTitle: "Notes", notes: "Notes (shown on quote)", notesLabel: "Notes", type: "Type of work", base: "Base price per sq ft (₹)",
+    complexity: "Design complexity", thk: "Material thickness", w: "Width", h: "Height", mw: "Overall material width", mh: "Overall material height", qty: "Quantity",
+    material: "Material", matInc: "Is material from our end?", matSel: "Material", waste: "Wastage (%)",
+    other: "Other charges (₹)", labour: "Labour", design: "Design", transport: "Transport",
+    quotation: "Quotation", date: "Date", customer: "Customer", area: "Total area", sqft: "sq ft",
+    rate: "Rate per sq ft", total: "Total", pdf: "Download / Share PDF",
+    pdfNote: "Opens the share menu (WhatsApp, Mail, Save to Files) with the PDF named client-date-time. If sharing is not available, the PDF downloads.",
+    langBtn: "हिंदी", matLine: "Material"
+  },
+  hi: {
+    biz: "विनायक इंजीनियरिंग वर्क्स", sub: "काम का विवरण भरें और तुरंत कीमत पाएं।",
+    job: "काम का विवरण", cust: "ग्राहक का नाम", workName: "काम का नाम", notesTitle: "नोट्स", notes: "नोट्स (कोटेशन में दिखेंगे)", notesLabel: "नोट्स", type: "काम का प्रकार", base: "बेस प्राइस (₹ प्रति वर्ग फुट)",
+    complexity: "डिज़ाइन की जटिलता", thk: "मटेरियल की मोटाई", w: "चौड़ाई", h: "ऊँचाई", mw: "कुल मटेरियल की चौड़ाई", mh: "कुल मटेरियल की ऊँचाई", qty: "मात्रा",
+    material: "मटेरियल", matInc: "क्या मटेरियल हमारी तरफ से है?", matSel: "मटेरियल चुनें", waste: "वेस्टेज (%)",
+    other: "अन्य शुल्क (₹)", labour: "मज़दूरी", design: "डिज़ाइन शुल्क", transport: "ट्रांसपोर्ट",
+    quotation: "कोटेशन", date: "दिनांक", customer: "ग्राहक", area: "कुल क्षेत्रफल", sqft: "वर्ग फुट",
+    rate: "दर प्रति वर्ग फुट", total: "कुल राशि", pdf: "PDF डाउनलोड / शेयर करें",
+    pdfNote: "शेयर मेनू खुलेगा (WhatsApp, Mail, Files में सेव) और PDF का नाम ग्राहक-तारीख-समय होगा। शेयर उपलब्ध न हो तो PDF डाउनलोड होगा।",
+    langBtn: "English", matLine: "मटेरियल"
+  }
+};
+
+/* units: f = how many feet in one unit */
+const UNITS = [
+  { en: "Feet",   hi: "फुट",   f: 1 },
+  { en: "Inches", hi: "इंच",   f: 1 / 12 },
+  { en: "mm",     hi: "मिमी",  f: 1 / 304.8 },
+  { en: "cm",     hi: "सेमी",  f: 1 / 30.48 }
+];
+
+let lang = "en";
+const $ = id => document.getElementById(id);
+const toFt = (id, unitId) => (+$(id).value || 0) * UNITS[$(unitId).value].f;
+const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function fill(sel, list){
+  const el = $(sel), keep = el.selectedIndex >= 0 ? el.selectedIndex : 0;
+  el.innerHTML = list.map((o, i) => `<option value="${i}">${o[lang]}</option>`).join("");
+  el.selectedIndex = keep;
+}
+
+function fillMat(){
+  const el = $("mat"), keep = el.selectedIndex >= 0 ? el.selectedIndex : 0;
+  let html = "", cur = null;
+  CONFIG.materials.forEach((o, i) => {
+    if (o.g !== cur){ if (cur) html += "</optgroup>"; html += `<optgroup label="${o.g[lang]}">`; cur = o.g; }
+    html += `<option value="${i}">${o.s[lang]} - ₹${o.p}/${T[lang].sqft}</option>`;
+  });
+  el.innerHTML = html + "</optgroup>";
+  el.selectedIndex = keep;
+}
+
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = T[lang][el.dataset.i18n]);
+  $("lang").textContent = T[lang].langBtn;
+  fill("type", CONFIG.workTypes);
+  fill("complexity", CONFIG.complexity);
+  fill("thk", CONFIG.thickness);
+  fillMat();
+  ["wU", "hU", "mwU", "mhU"].forEach(id => fill(id, UNITS));
+  calc();
+}
+
+function calc(){
+  const t = T[lang];
+  const w = toFt("w", "wU"), h = toFt("h", "hU");
+  const qty = Math.max(1, +$("qty").value || 1);
+  const area = w * h * qty;
+
+  const type = CONFIG.workTypes[$("type").value];
+  const base = +$("base").value || 0;
+  const rate = base * CONFIG.complexity[$("complexity").value].m * CONFIG.thickness[$("thk").value].m;
+  const work = Math.max(area * rate, area > 0 ? CONFIG.minCharge : 0);
+
+  const matOn = $("matInc").checked;
+  $("matBox").style.display = matOn ? "block" : "none";
+  const mat = CONFIG.materials[$("mat").value];
+  const matArea = toFt("mw", "mwU") * toFt("mh", "mhU");
+  const material = matOn ? matArea * mat.p : 0;
+
+  const labour = +$("labour").value || 0;
+  const design = +$("design").value || 0;
+  const transport = +$("transport").value || 0;
+  const total = work + material + labour + design + transport;
+
+  const date = new Date().toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN");
+  let rows = `<tr><td>${t.date}</td><td>${date}</td></tr>`;
+  if ($("cust").value.trim()) rows += `<tr><td>${t.customer}</td><td>${esc($("cust").value.trim())}</td></tr>`;
+  if ($("workName").value.trim()) rows += `<tr><td>${t.workName}</td><td>${esc($("workName").value.trim())}</td></tr>`;
+  rows += `
+    <tr><td>${t.area}</td><td>${area.toFixed(2)} ${t.sqft}</td></tr>
+    <tr><td>${t.rate}</td><td>${inr(rate)}</td></tr>
+    <tr><td>${type[lang]}</td><td>${inr(work)}</td></tr>`;
+  if (matOn) rows += `<tr><td>${t.matLine} (${mat[lang]}, ${matArea.toFixed(2)} ${t.sqft})</td><td>${inr(material)}</td></tr>`;
+  rows += `
+    <tr><td>${t.labour}</td><td>${inr(labour)}</td></tr>
+    <tr><td>${t.design}</td><td>${inr(design)}</td></tr>
+    <tr><td>${t.transport}</td><td>${inr(transport)}</td></tr>
+    <tr class="total"><td>${t.total}</td><td>${inr(total)}</td></tr>`;
+  if ($("notes").value.trim()) rows += `<tr><td colspan="2" class="notes"><strong>${t.notesLabel}:</strong> ${esc($("notes").value.trim())}</td></tr>`;
+  $("out").innerHTML = rows;
+}
+
+/* Changing work type loads that type's default base price (still editable) */
+$("type").addEventListener("change", () => { $("base").value = CONFIG.workTypes[$("type").value].base; });
+$("base").value = CONFIG.workTypes[0].base;
+
+/* Remember the entered values, so a reload or "Save as PDF" shows the same quote */
+const SAVE_KEY = "vew-quote-state";
+const FIELDS = [...document.querySelectorAll("#f input, #f select, #f textarea")];
+function saveState(){
+  try {
+    const s = { lang };
+    FIELDS.forEach(el => { s[el.id] = el.type === "checkbox" ? el.checked : el.value; });
+    localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+  } catch (e) {}
+}
+function loadState(){
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); } catch (e) { return null; }
+}
+
+FIELDS.forEach(el => {
+  const update = () => { calc(); saveState(); };
+  el.addEventListener("input", update);
+  el.addEventListener("change", update);
+});
+$("lang").addEventListener("click", () => { lang = lang === "en" ? "hi" : "en"; applyLang(); saveState(); });
+/* File name: ClientName-YYYY-MM-DD-HHMM */
+function quoteFileName(){
+  const d = new Date(), p = n => String(n).padStart(2, "0");
+  const name = ($("cust").value.trim() || "Quotation").replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, "-");
+  const h12 = d.getHours() % 12 || 12, ampm = d.getHours() < 12 ? "AM" : "PM";
+  return `${name}-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(h12)}-${p(d.getMinutes())}${ampm}`;
+}
+
+$("pdf").addEventListener("click", async () => {
+  calc();
+  try {
+    if (!window.html2canvas || !window.jspdf) throw new Error("PDF library not loaded");
+    const box = document.createElement("div");
+    box.style.cssText = "position:fixed;left:-9999px;top:0;width:640px;padding:32px;background:#fff;color:#16202b;font-family:system-ui,'Noto Sans Devanagari',sans-serif";
+    box.innerHTML = `<h2 style="margin:0 0 4px;font-size:24px">${T[lang].biz}</h2>
+      <div style="font-weight:700;margin-bottom:14px">${T[lang].quotation}</div>
+      <table>${$("out").innerHTML}</table>`;
+    document.body.appendChild(box);
+    const canvas = await html2canvas(box, { scale: 2, backgroundColor: "#ffffff" });
+    document.body.removeChild(box);
+    const pdf = new window.jspdf.jsPDF({ unit: "mm", format: "a4" });
+    let pw = pdf.internal.pageSize.getWidth() - 20;
+    let ph = canvas.height * pw / canvas.width;
+    const maxH = pdf.internal.pageSize.getHeight() - 20;
+    if (ph > maxH) { pw = pw * maxH / ph; ph = maxH; }
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 10, 10, pw, ph);
+    const fileName = quoteFileName() + ".pdf";
+    const file = new File([pdf.output("blob")], fileName, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: fileName }); return; }
+      catch (err) { if (err && err.name === "AbortError") return; }   // cancelled by user
+    }
+    pdf.save(fileName);
+  } catch (e) {
+    // fallback: print window; the page title becomes the suggested file name
+    const oldTitle = document.title;
+    document.title = quoteFileName();
+    window.print();
+    setTimeout(() => { document.title = oldTitle; }, 1000);
+  }
+});
+
+const saved = loadState();
+if (saved && saved.lang) lang = saved.lang;
+applyLang();
+if (saved) {
+  FIELDS.forEach(el => {
+    if (!(el.id in saved)) return;
+    if (el.type === "checkbox") el.checked = saved[el.id]; else el.value = saved[el.id];
+  });
+} else {
+  $("mat").value = CONFIG.materials.findIndex(m => m.en === "Interior MDF 18 mm");
+}
+calc();
+</script>
+</body>
+</html>
