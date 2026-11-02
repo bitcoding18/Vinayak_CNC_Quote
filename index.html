@@ -30,6 +30,7 @@
   #matBox{display:none}
   button{font:inherit;cursor:pointer;border-radius:6px;padding:10px 14px;border:1px solid var(--accent)}
   #lang{background:#fff;color:var(--accent);white-space:nowrap}
+  #clear{display:block;margin:0 0 12px auto;padding:5px 12px;font-size:.85rem;background:#fff;color:#a13232;border-color:#a13232;font-weight:600}
   #pdf{width:100%;margin-top:14px;background:var(--accent);color:#fff;font-weight:600}
   table{width:100%;border-collapse:collapse;font-size:.95rem}
   td{padding:7px 0;border-bottom:1px solid var(--line)}
@@ -59,6 +60,7 @@
   </header>
 
   <form class="card" id="f" onsubmit="return false">
+    <button type="button" id="clear" data-i18n="clear"></button>
     <fieldset>
       <legend data-i18n="job"></legend>
       <label for="cust" data-i18n="cust"></label>
@@ -174,7 +176,7 @@ OTHER_MATERIALS.forEach(m => CONFIG.materials.push({ g: OTHER_GROUP, p: m.p, en:
 const T = {
   en: {
     biz: "Vinayak Engineering Works", sub: "Enter the job details to get an instant price.",
-    job: "Job", cust: "Customer name", workName: "Name of work", notesTitle: "Notes", notes: "Notes (shown on quote)", notesLabel: "Notes", type: "Type of work", base: "Base price per sq ft (₹)",
+    job: "Job", clear: "Clear all fields", cust: "Customer name", workName: "Name of work", notesTitle: "Notes", notes: "Notes (shown on quote)", notesLabel: "Notes", type: "Type of work", base: "Base price per sq ft (₹)",
     complexity: "Design complexity", thk: "Material thickness", w: "Width", h: "Height", mw: "Overall material width", mh: "Overall material height", qty: "Quantity",
     material: "Material", matInc: "Is material from our end?", matSel: "Material", waste: "Wastage (%)",
     other: "Other charges (₹)", labour: "Labour", design: "Design", transport: "Transport",
@@ -185,7 +187,7 @@ const T = {
   },
   hi: {
     biz: "विनायक इंजीनियरिंग वर्क्स", sub: "काम का विवरण भरें और तुरंत कीमत पाएं।",
-    job: "काम का विवरण", cust: "ग्राहक का नाम", workName: "काम का नाम", notesTitle: "नोट्स", notes: "नोट्स (कोटेशन में दिखेंगे)", notesLabel: "नोट्स", type: "काम का प्रकार", base: "बेस प्राइस (₹ प्रति वर्ग फुट)",
+    job: "काम का विवरण", clear: "सभी फ़ील्ड साफ़ करें", cust: "ग्राहक का नाम", workName: "काम का नाम", notesTitle: "नोट्स", notes: "नोट्स (कोटेशन में दिखेंगे)", notesLabel: "नोट्स", type: "काम का प्रकार", base: "बेस प्राइस (₹ प्रति वर्ग फुट)",
     complexity: "डिज़ाइन की जटिलता", thk: "मटेरियल की मोटाई", w: "चौड़ाई", h: "ऊँचाई", mw: "कुल मटेरियल की चौड़ाई", mh: "कुल मटेरियल की ऊँचाई", qty: "मात्रा",
     material: "मटेरियल", matInc: "क्या मटेरियल हमारी तरफ से है?", matSel: "मटेरियल चुनें", waste: "वेस्टेज (%)",
     other: "अन्य शुल्क (₹)", labour: "मज़दूरी", design: "डिज़ाइन शुल्क", transport: "ट्रांसपोर्ट",
@@ -303,6 +305,18 @@ FIELDS.forEach(el => {
   el.addEventListener("change", update);
 });
 $("lang").addEventListener("click", () => { lang = lang === "en" ? "hi" : "en"; applyLang(); saveState(); });
+
+/* Clear all fields (language is kept; material size goes back to an 8 x 4 ft sheet) */
+$("clear").addEventListener("click", () => {
+  ["cust", "workName", "notes", "w", "h", "labour", "design", "transport"].forEach(id => { $(id).value = ""; });
+  $("qty").value = 1;
+  $("matInc").checked = false;
+  $("mw").value = 8; $("mh").value = 4;
+  ["type", "complexity", "thk", "wU", "hU", "mwU", "mhU"].forEach(id => { $(id).selectedIndex = 0; });
+  $("mat").value = CONFIG.materials.findIndex(m => m.en === "Interior MDF 18 mm");
+  $("base").value = CONFIG.workTypes[0].base;
+  calc(); saveState();
+});
 /* File name: ClientName-YYYY-MM-DD-HHMM */
 function quoteFileName(){
   const d = new Date(), p = n => String(n).padStart(2, "0");
